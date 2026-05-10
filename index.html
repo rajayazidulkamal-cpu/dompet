@@ -176,6 +176,17 @@ body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(-
 .btn-pdel{font-size:11px;padding:3px 8px;border-radius:99px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer}
 .btn-pdel:hover{border-color:var(--red);color:var(--red)}
 
+/* === AKUN === */
+.akun-item{display:grid;grid-template-columns:44px 1fr auto;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid var(--border)}
+.akun-item:last-child{border-bottom:none}
+.akun-ico{width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.akun-name{font-size:14px;font-weight:600;margin-bottom:3px}
+.akun-detail{font-size:11px;color:var(--muted)}
+.akun-saldo{text-align:right}
+.akun-saldo-val{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--green)}
+.akun-saldo-val.minus{color:var(--red)}
+.akun-saldo-sub{font-size:10px;color:var(--muted);margin-top:2px}
+
 /* === TOAST === */
 .toast{position:fixed;bottom:calc(var(--nav-h) + 12px);left:50%;transform:translateX(-50%) translateY(16px);background:rgba(255,94,125,.15);border:1px solid var(--red);color:var(--red);padding:10px 18px;border-radius:10px;font-size:12px;font-weight:500;opacity:0;transition:all .3s;z-index:99;backdrop-filter:blur(10px);white-space:nowrap}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
@@ -302,10 +313,29 @@ body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(-
   </div>
 </div>
 
+<!-- PAGE AKUN -->
+<div class="page" id="page-akun">
+  <div class="panel">
+    <div class="ph">
+      <span class="pt">💳 Saldo Akun</span>
+      <button class="batur" onclick="openAkunModal()">⚙️ Saldo Awal</button>
+    </div>
+    <div id="akunList"></div>
+  </div>
+  <div class="panel" style="margin-top:0">
+    <div class="ph"><span class="pt">📊 Riwayat per Akun</span></div>
+    <div class="pb" style="padding-bottom:8px">
+      <div class="fbar" id="akunFilter"></div>
+    </div>
+    <div id="akunTxList"></div>
+  </div>
+</div>
+
 <!-- BOTTOM NAV -->
 <div class="bot-nav">
   <button class="bn on" id="bn0" onclick="setPage('keuangan')"><span class="bn-ico">💰</span>Keuangan</button>
   <button class="bn" id="bn1" onclick="setPage('piutang')"><span class="bn-ico">🤝</span>Piutang</button>
+  <button class="bn" id="bn2" onclick="setPage('akun')"><span class="bn-ico">💳</span>Akun</button>
 </div>
 
 <!-- MODAL -->
@@ -320,7 +350,18 @@ body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(-
   </div>
 </div>
 
-<div class="toast" id="toast"></div>
+<!-- MODAL AKUN SALDO AWAL -->
+<div class="mo" id="moAkun" onclick="if(event.target===this)closeAkunModal()">
+  <div class="mbox">
+    <h3>💳 Saldo Awal per Akun</h3>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:16px">Masukkan saldo awal sebelum kamu mulai mencatat transaksi di app ini.</p>
+    <div id="akunFields"></div>
+    <div class="mact">
+      <button class="mcancel" onclick="closeAkunModal()">Batal</button>
+      <button class="msave" onclick="saveAkunAwal()">Simpan</button>
+    </div>
+  </div>
+</div>
 
 <script>
 var OPT={
@@ -355,12 +396,15 @@ function fmtInput(id){
 }
 
 function setPage(pg){
-  document.getElementById('page-keuangan').classList.toggle('on',pg==='keuangan');
-  document.getElementById('page-piutang').classList.toggle('on',pg==='piutang');
+  ['keuangan','piutang','akun'].forEach(function(p){
+    document.getElementById('page-'+p).classList.toggle('on',pg===p);
+  });
   document.getElementById('bn0').classList.toggle('on',pg==='keuangan');
   document.getElementById('bn1').classList.toggle('on',pg==='piutang');
+  document.getElementById('bn2').classList.toggle('on',pg==='akun');
   document.getElementById('page-'+pg).scrollTop=0;
   if(pg==='piutang')renderPiutang();
+  if(pg==='akun')renderAkun();
 }
 
 function setTab(t,ev){
@@ -513,7 +557,112 @@ function renderPiutang(){
   }).join('');
 }
 
-function showToastGreen(msg){var t=document.getElementById('toast');t.style.background='rgba(34,211,165,.15)';t.style.borderColor='var(--green)';t.style.color='var(--green)';t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');setTimeout(function(){t.style.background='';t.style.borderColor='';t.style.color='';},300);},3200);}
+// ===== AKUN =====
+var AKUN_LIST=[
+  {id:'cash',   name:'CASH',      ico:'💵', bg:'rgba(34,211,165,.12)'},
+  {id:'gopay',  name:'GOPAY',     ico:'💚', bg:'rgba(34,211,165,.12)'},
+  {id:'shopee', name:'SHOPEEPAY', ico:'🟠', bg:'rgba(249,168,37,.12)'},
+  {id:'dana',   name:'DANA',      ico:'💙', bg:'rgba(91,156,246,.12)'},
+  {id:'seabank',name:'SEABANK',   ico:'🏦', bg:'rgba(91,156,246,.12)'},
+  {id:'transfer',name:'TRANSFER', ico:'🔄', bg:'rgba(122,132,153,.12)'},
+];
+var akunAwal={};
+var akunFilter='semua';
+try{akunAwal=JSON.parse(localStorage.getItem('dk_akun_awal')||'{}');}catch(e){akunAwal={};}
+
+function getAkunId(akunStr){
+  var s=akunStr.toLowerCase();
+  if(s.includes('cash'))return'cash';
+  if(s.includes('gopay'))return'gopay';
+  if(s.includes('shopee'))return'shopee';
+  if(s.includes('dana'))return'dana';
+  if(s.includes('seabank'))return'seabank';
+  if(s.includes('transfer'))return'transfer';
+  return'cash';
+}
+
+function renderAkun(){
+  // hitung saldo tiap akun
+  var saldos={};
+  AKUN_LIST.forEach(function(a){ saldos[a.id]=akunAwal[a.id]||0; });
+  txs.forEach(function(tx){
+    var id=getAkunId(tx.akun);
+    if(tx.type==='masuk') saldos[id]+=tx.nom;
+    else if(tx.type==='keluar') saldos[id]-=tx.nom;
+    // saving: keluar dari akun asal (ikut pengeluaran)
+    else if(tx.type==='saving') saldos[id]-=tx.nom;
+  });
+
+  // render kartu akun
+  document.getElementById('akunList').innerHTML=AKUN_LIST.map(function(a){
+    var s=saldos[a.id]||0;
+    var masuk=txs.filter(function(t){return t.type==='masuk'&&getAkunId(t.akun)===a.id;}).reduce(function(acc,t){return acc+t.nom;},0);
+    var keluar=txs.filter(function(t){return t.type!=='masuk'&&getAkunId(t.akun)===a.id;}).reduce(function(acc,t){return acc+t.nom;},0);
+    var awal=akunAwal[a.id]||0;
+    return'<div class="akun-item">'
+      +'<div class="akun-ico" style="background:'+a.bg+'">'+a.ico+'</div>'
+      +'<div><div class="akun-name">'+a.name+'</div>'
+      +'<div class="akun-detail">Saldo awal '+fmt(awal)+' · +'+fmt(masuk)+' / −'+fmt(keluar)+'</div></div>'
+      +'<div class="akun-saldo"><div class="akun-saldo-val'+(s<0?' minus':'')+'">'+fmt(s)+'</div>'
+      +'<div class="akun-saldo-sub">saldo saat ini</div></div>'
+      +'</div>';
+  }).join('');
+
+  // filter riwayat per akun
+  var filterBar=document.getElementById('akunFilter');
+  filterBar.innerHTML='<button class="fc'+(akunFilter==='semua'?' on':'')+'" onclick="setAkunFilter(\'semua\',this)">Semua</button>'
+    +AKUN_LIST.map(function(a){
+      return'<button class="fc'+(akunFilter===a.id?' on':'')+'" onclick="setAkunFilter(\''+a.id+'\',this)">'+a.ico+' '+a.name+'</button>';
+    }).join('');
+
+  renderAkunTx();
+}
+
+function setAkunFilter(f,el){
+  akunFilter=f;
+  document.querySelectorAll('#akunFilter .fc').forEach(function(c){c.classList.remove('on');});
+  el.classList.add('on');
+  renderAkunTx();
+}
+
+function renderAkunTx(){
+  var el=document.getElementById('akunTxList');
+  var list=akunFilter==='semua'?txs:txs.filter(function(t){return getAkunId(t.akun)===akunFilter;});
+  if(!list.length){el.innerHTML='<div class="empty"><div class="empty-icon">📭</div>Belum ada transaksi</div>';return;}
+  el.innerHTML=list.slice(0,30).map(function(tx,i){
+    var tc=tx.type==='masuk'?'g':tx.type==='keluar'?'r':'b';
+    var sign=tx.type==='masuk'?'+':tx.type==='saving'?'':'−';
+    var ds=new Date(tx.tgl).toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'});
+    var det=[tx.kat,tx.sub,tx.note].filter(Boolean).join(' · ');
+    return'<div class="txi" style="animation-delay:'+i*.03+'s"><div class="ico '+tc+'">'+tx.ico+'</div><div><div class="tcat">'+tx.akun+'</div><div class="tsub">'+det+'</div></div><div><div class="tamt '+tc+'">'+sign+fmt(tx.nom)+'</div><div class="tdate">'+ds+'</div></div></div>';
+  }).join('');
+}
+
+function openAkunModal(){
+  document.getElementById('akunFields').innerHTML=AKUN_LIST.map(function(a){
+    return'<div class="mrow"><label>'+a.ico+' '+a.name+'</label><input type="text" data-id="'+a.id+'" value="'+(akunAwal[a.id]?akunAwal[a.id]:'')+'" placeholder="0" inputmode="numeric"></div>';
+  }).join('');
+  // format inputs
+  document.querySelectorAll('#akunFields input').forEach(function(inp){
+    inp.addEventListener('input',function(){
+      var raw=this.value.replace(/[^0-9]/g,'');
+      if(!raw){this.value='';return;}
+      var s=parseInt(raw,10).toString(),r='';
+      for(var i=0;i<s.length;i++){if(i>0&&(s.length-i)%3===0)r+='.';r+=s[i];}
+      this.value=r;
+    });
+  });
+  document.getElementById('moAkun').classList.add('open');
+}
+function closeAkunModal(){document.getElementById('moAkun').classList.remove('open');}
+function saveAkunAwal(){
+  document.querySelectorAll('#akunFields input').forEach(function(inp){
+    akunAwal[inp.dataset.id]=parseInt(inp.value.replace(/[^0-9]/g,'')||'0',10);
+  });
+  try{localStorage.setItem('dk_akun_awal',JSON.stringify(akunAwal));}catch(e){}
+  closeAkunModal();renderAkun();showToastGreen('✅ Saldo awal berhasil disimpan!');
+}
+var t=document.getElementById('toast');t.style.background='rgba(34,211,165,.15)';t.style.borderColor='var(--green)';t.style.color='var(--green)';t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');setTimeout(function(){t.style.background='';t.style.borderColor='';t.style.color='';},300);},3200);}
 function showToast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},3200);}
 </script>
 <script>
