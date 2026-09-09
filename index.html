@@ -1953,11 +1953,43 @@ function showToastGreen(msg){var t=document.getElementById('toast');t.style.back
 function showToast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},3200);}
 </script>
 <script>
-if('serviceWorker' in navigator){
-  window.addEventListener('load',function(){
-    navigator.serviceWorker.register('./sw.js');
+  const firebaseConfig = {
+    apiKey: "AIzaSyB6kb1wGe_RS594cMiqit09nY0zKgimQAU",
+    authDomain: "dompetku-ca6e3.firebaseapp.com",
+    projectId: "dompetku-ca6e3",
+    storageBucket: "dompetku-ca6e3.firebasestorage.app",
+    messagingSenderId: "101970427821",
+    appId: "1:101970427821:web:4fb8ca0fa63b143b00ef4e",
+    measurementId: "G-6E3TBJ8JGR"
+  };
+
+  // Initialize Firebase (compat way)
+  try {
+    firebase.initializeApp(firebaseConfig);
+    console.log('✅ Firebase initialized successfully');
+  } catch (error) {
+    console.error('❌ Firebase initialization error:', error);
+    CLOUD_ENABLED = false;
+  }
+
+  firebase.auth().onAuthStateChanged(function(user) {
+    currentUser = user;
+    updateCloudBtn();
+    if (user) {
+      setTimeout(() => pullFromCloud(true), 500);
+    }
   });
-}
 </script>
-</body>
-</html>
+
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+      navigator.serviceWorker.register('./sw.js')
+        .then(reg => {
+          console.log('✅ Service Worker registered');
+          setInterval(() => reg.update(), 3600000);
+        })
+        .catch(err => console.warn('Service Worker registration failed:', err));
+    });
+  }
+</script>
