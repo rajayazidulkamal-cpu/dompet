@@ -1952,26 +1952,25 @@ function scheduleCloudSync(immediate){
 function showToastGreen(msg){var t=document.getElementById('toast');t.style.background='rgba(201,168,76,.12)';t.style.borderColor='rgba(201,168,76,.5)';t.style.color='var(--gold2)';t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');setTimeout(function(){t.style.background='';t.style.borderColor='';t.style.color='';},300);},3200);}
 function showToast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},3200);}
 </script>
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyB6kb1wGe_RS594cMiqit09nY0zKgimQAU",
-    authDomain: "dompetku-ca6e3.firebaseapp.com",
-    projectId: "dompetku-ca6e3",
-    storageBucket: "dompetku-ca6e3.firebasestorage.app",
-    messagingSenderId: "101970427821",
-    appId: "1:101970427821:web:4fb8ca0fa63b143b00ef4e",
-    measurementId: "G-6E3TBJ8JGR"
-  };
-
+  <script>
   // Initialize Firebase (compat way)
   try {
-    firebase.initializeApp(firebaseConfig);
+    firebase.initializeApp({
+      apiKey: "AIzaSyB6kb1wGe_RS594cMiqit09nY0zKgimQAU",
+      authDomain: "dompetku-ca6e3.firebaseapp.com",
+      projectId: "dompetku-ca6e3",
+      storageBucket: "dompetku-ca6e3.firebasestorage.app",
+      messagingSenderId: "101970427821",
+      appId: "1:101970427821:web:4fb8ca0fa63b143b00ef4e",
+      measurementId: "G-6E3TBJ8JGR"
+    });
     console.log('✅ Firebase initialized successfully');
   } catch (error) {
     console.error('❌ Firebase initialization error:', error);
     CLOUD_ENABLED = false;
   }
 
+  // Set up auth state listener
   firebase.auth().onAuthStateChanged(function(user) {
     currentUser = user;
     updateCloudBtn();
@@ -1982,6 +1981,7 @@ function showToast(msg){var t=document.getElementById('toast');t.textContent=msg
 </script>
 
 <script>
+  // Service Worker registration with update checks
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function() {
       navigator.serviceWorker.register('./sw.js')
@@ -1993,3 +1993,5 @@ function showToast(msg){var t=document.getElementById('toast');t.textContent=msg
     });
   }
 </script>
+</body>
+</html>
