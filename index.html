@@ -1965,6 +1965,10 @@ function showToast(msg){var t=document.getElementById('toast');t.textContent=msg
       measurementId: "G-6E3TBJ8JGR"
     });
     console.log('✅ Firebase initialized successfully');
+
+    // Get Firestore reference
+const db = firebase.firestore();
+    
   } catch (error) {
     console.error('❌ Firebase initialization error:', error);
     CLOUD_ENABLED = false;
