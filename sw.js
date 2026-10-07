@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'dompetku-v14-premium';
+const CACHE_VERSION = 'dompetku-v15-dashboard';
 const ASSETS = [
   './',
   './index.html',
