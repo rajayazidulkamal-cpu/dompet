@@ -670,6 +670,85 @@ body:before{
 .msave{background:linear-gradient(135deg,#4d7cff,#6256e8);color:#fff}
 .mcancel{background:#0b1526;border-color:rgba(105,143,226,.14);color:#91a2c3}
 </style>
+<style id="dompetku-dashboard-detail">
+/* ── Detailed finance-dashboard layer ── */
+@media(min-width:821px){
+  .dashboard-grid{
+    display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:16px;align-items:start;
+  }
+  .dash-main{display:flex;flex-direction:column;gap:16px;min-width:0}
+  .dash-side{display:flex;flex-direction:column;gap:16px;min-width:0}
+  .dashboard-grid .panel{margin:0}
+  .dash-ph{min-height:58px;display:flex;align-items:center;justify-content:space-between;padding:12px 17px}
+  .dash-title{margin-top:4px;font-size:15px;font-weight:800;letter-spacing:-.25px;color:#edf2ff}
+  .dash-range,.mini-period{
+    font-size:10px;color:#8295b9;background:#0a1527;border:1px solid rgba(105,143,226,.13);
+    border-radius:8px;padding:6px 9px
+  }
+  .cashflow-panel{min-height:330px}
+  .cashflow-body{padding:14px 17px 16px}
+  .cashflow-summary{display:flex;gap:24px;align-items:center;margin-bottom:5px;flex-wrap:wrap}
+  .cashflow-summary>div{display:grid;grid-template-columns:8px auto;column-gap:7px;align-items:center}
+  .cashflow-summary span:not(.cf-dot){font-size:10px;color:#7185aa}
+  .cashflow-summary strong{grid-column:2;font-size:12px;color:#e7edfc;margin-top:2px}
+  .cf-dot{width:7px;height:7px;border-radius:50%;grid-row:1 / span 2}
+  .cf-dot.income{background:#5b8cff;box-shadow:0 0 9px rgba(91,140,255,.4)}
+  .cf-dot.expense{background:#ff7185;box-shadow:0 0 9px rgba(255,113,133,.35)}
+  .cf-dot.saving{background:#62d8bb;box-shadow:0 0 9px rgba(98,216,187,.35)}
+  .cashflow-chart-wrap{height:235px;position:relative}
+  #cashflowChart{display:block;width:100%;height:100%}
+  .tx-tools{padding:11px 17px 9px!important}
+  .transactions-panel .ph{border-bottom:1px solid rgba(105,143,226,.09)}
+  .transactions-panel .fbar{display:flex;gap:4px}
+  .transactions-panel .fc{font-size:9px;padding:5px 7px}
+  .accounts-panel .pb{padding:8px 12px 10px}
+  .account-snapshot{display:flex;flex-direction:column;gap:4px}
+  .account-row{
+    display:grid;grid-template-columns:35px minmax(0,1fr) auto;align-items:center;gap:9px;
+    padding:9px 5px;border-bottom:1px solid rgba(105,143,226,.07)
+  }
+  .account-row:last-child{border-bottom:0}
+  .account-ico{
+    width:35px;height:35px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(145deg,#182846,#0d1b31);border:1px solid rgba(105,143,226,.12);font-size:16px
+  }
+  .account-name{font-size:11px;font-weight:700;color:#dbe4f7}
+  .account-sub{font-size:8px;color:#647798;margin-top:2px}
+  .account-balance{font-size:11px;font-weight:750;color:#edf2ff;text-align:right}
+  .account-total{
+    margin:8px 3px 2px;padding:11px 12px;border-radius:11px;
+    background:linear-gradient(100deg,rgba(72,106,235,.16),rgba(72,106,235,.04));
+    border:1px solid rgba(88,124,255,.16);display:flex;justify-content:space-between;align-items:center
+  }
+  .account-total span{font-size:9px;color:#778db4}.account-total strong{font-size:13px;color:#fff}
+  .spending-body{padding:15px 12px 16px}
+  .spending-panel .dovwrap{justify-content:center;gap:14px}
+  .spending-panel #donut{width:125px!important;height:125px!important}
+  .spending-panel .leg{flex:1;min-width:105px}
+  .spending-panel .li{grid-template-columns:7px 1fr auto}
+  .quick-form{padding:13px}
+  .quick-tabs{margin-bottom:11px!important}
+  .quick-tabs .tb{font-size:9px;padding:8px 5px}
+  .quick-form .fg2{gap:7px}
+  .quick-form .fr{margin-bottom:9px}
+  .quick-form .fr label{font-size:9px;margin-bottom:5px}
+  .quick-form input,.quick-form select{padding:9px 10px;font-size:11px}
+  .quick-note{margin-bottom:9px!important}
+  .quick-submit{height:39px;font-size:11px}
+  .budget-panel .pb{max-height:190px;overflow:auto}
+  .budget-panel .ph{min-height:54px}
+}
+@media(max-width:820px){
+  .dashboard-grid{display:flex;flex-direction:column;gap:14px}
+  .dash-main,.dash-side{display:contents}
+  .cashflow-panel{order:1}.spending-panel{order:2}.quick-panel{order:3}
+  .transactions-panel{order:4}.accounts-panel{order:5}.budget-panel{order:6}
+  .dash-ph{display:flex;align-items:center;justify-content:space-between}
+  .cashflow-chart-wrap{height:210px}
+  .cashflow-summary{gap:12px}
+  .account-snapshot{max-height:none}
+}
+</style>
 </head>
 <body>
 
@@ -704,19 +783,99 @@ body:before{
     <div class="kpi b"><div class="kpi-lbl">🏦 Saving</div><div class="kpi-val" id="kS">Rp 0</div></div>
     <div class="kpi m"><div class="kpi-lbl">💵 Saldo Bersih</div><div class="kpi-val" id="kN">Rp 0</div><div class="kpi-sub" id="kR">Saving rate: 0%</div></div>
   </div>
-  <div class="grid">
-    <div>
-      <div class="panel">
-        <div class="ph"><span class="pt">Tambah Transaksi</span></div>
-        <div class="pb">
-          <div class="tabs">
-            <button class="tb ag" id="tb0" onclick="setTab('masuk',event)">➕ Pemasukan</button>
-            <button class="tb" id="tb1" onclick="setTab('keluar',event)">➖ Pengeluaran</button>
-            <button class="tb" id="tb2" onclick="setTab('saving',event)">🏦 Saving</button>
+  <div class="dashboard-grid">
+    <section class="dash-main">
+      <div class="panel cashflow-panel">
+        <div class="ph dash-ph">
+          <div>
+            <span class="pt">Cash Flow</span>
+            <div class="dash-title">Arus keuangan</div>
+          </div>
+          <div class="dash-range" id="cashflowRange">Bulan Ini</div>
+        </div>
+        <div class="pb cashflow-body">
+          <div class="cashflow-summary">
+            <div><span class="cf-dot income"></span><span>Pemasukan</span><strong id="cfIncome">Rp 0</strong></div>
+            <div><span class="cf-dot expense"></span><span>Pengeluaran</span><strong id="cfExpense">Rp 0</strong></div>
+            <div><span class="cf-dot saving"></span><span>Saving</span><strong id="cfSaving">Rp 0</strong></div>
+          </div>
+          <div class="cashflow-chart-wrap">
+            <canvas id="cashflowChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel transactions-panel">
+        <div class="ph dash-ph">
+          <div>
+            <span class="pt">Transactions</span>
+            <div class="dash-title">Transaksi terbaru</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <button class="btn-export" onclick="exportCSV()">⬇ CSV</button>
+            <div class="fbar">
+              <button class="fc on" onclick="setFilter('semua',this)">Semua</button>
+              <button class="fc" onclick="setFilter('masuk',this)">Masuk</button>
+              <button class="fc" onclick="setFilter('keluar',this)">Keluar</button>
+              <button class="fc" onclick="setFilter('saving',this)">Saving</button>
+            </div>
+          </div>
+        </div>
+        <div class="pb tx-tools">
+          <div class="search-wrap">
+            <span class="si">⌕</span>
+            <input type="text" id="txSearch" placeholder="Cari transaksi, kategori, akun..." oninput="onSearch(this)">
+            <button class="search-clear" id="searchClear" onclick="clearSearch()">✕</button>
+          </div>
+        </div>
+        <div class="txlist" id="txList"></div>
+      </div>
+    </section>
+
+    <aside class="dash-side">
+      <div class="panel accounts-panel">
+        <div class="ph dash-ph">
+          <div>
+            <span class="pt">My Accounts</span>
+            <div class="dash-title">Saldo akun</div>
+          </div>
+          <button class="batur" onclick="setPage('akun')">Lihat semua</button>
+        </div>
+        <div class="pb account-snapshot" id="accountSnapshot"></div>
+      </div>
+
+      <div class="panel spending-panel">
+        <div class="ph dash-ph">
+          <div>
+            <span class="pt">All Expenses</span>
+            <div class="dash-title">Pengeluaran</div>
+          </div>
+          <span class="mini-period">Bulan Ini</span>
+        </div>
+        <div class="pb spending-body">
+          <div class="dovwrap">
+            <canvas id="donut" width="132" height="132" style="flex-shrink:0"></canvas>
+            <div class="leg" id="legEl"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel quick-panel">
+        <div class="ph dash-ph">
+          <div>
+            <span class="pt">Quick Add</span>
+            <div class="dash-title">Tambah transaksi</div>
+          </div>
+        </div>
+        <div class="pb quick-form">
+          <div class="quick-tabs tabs">
+            <button class="tb ag" id="tb0" onclick="setTab('masuk',event)">＋ Masuk</button>
+            <button class="tb" id="tb1" onclick="setTab('keluar',event)">− Keluar</button>
+            <button class="tb" id="tb2" onclick="setTab('saving',event)">↗ Saving</button>
           </div>
           <div class="fg2">
+            <div class="fr"><label>Nominal</label><input type="text" id="fNom" placeholder="Rp 0" inputmode="numeric"></div>
             <div class="fr"><label>Tanggal</label><input type="date" id="fTgl"></div>
-            <div class="fr"><label>Nominal (Rp)</label><input type="text" id="fNom" placeholder="0" inputmode="numeric"></div>
           </div>
           <div class="fr"><label id="lKat">Sumber Pemasukan</label><select id="fKat" onchange="onKatChange()"></select></div>
           <div class="fr" id="rSub" style="display:none"><label>Sub-Kategori</label><select id="fSub"></select></div>
@@ -726,53 +885,23 @@ body:before{
               <option>💚 GOPAY</option><option>💙 DANA</option><option>🏦 SEABANK</option><option>🔄 TRANSFER</option>
             </select>
           </div>
-          <div class="fr"><label>Catatan (opsional)</label><input type="text" id="fNote" placeholder="Tulis catatan..."></div>
-          <button class="bsub g" id="bSub" onclick="addTx()">Tambah Pemasukan</button>
+          <div class="fr quick-note"><label>Catatan</label><input type="text" id="fNote" placeholder="Opsional..."></div>
+          <button class="bsub g quick-submit" id="bSub" onclick="addTx()">Tambah Pemasukan</button>
         </div>
       </div>
-      <div class="panel">
-        <div class="ph">
-          <span class="pt">Riwayat</span>
-          <div style="display:flex;align-items:center;gap:8px">
-            <button class="btn-export" onclick="exportCSV()">⬇️ CSV</button>
-            <div class="fbar">
-              <button class="fc on" onclick="setFilter('semua',this)">Semua</button>
-              <button class="fc" onclick="setFilter('masuk',this)">Pemasukan</button>
-              <button class="fc" onclick="setFilter('keluar',this)">Pengeluaran</button>
-              <button class="fc" onclick="setFilter('saving',this)">Saving</button>
-            </div>
+
+      <div class="panel budget-panel">
+        <div class="ph dash-ph">
+          <div>
+            <span class="pt">Budget</span>
+            <div class="dash-title">Kontrol pengeluaran</div>
           </div>
-        </div>
-        <div class="pb" style="padding-bottom:10px">
-          <div class="search-wrap">
-            <span class="si">🔍</span>
-            <input type="text" id="txSearch" placeholder="Cari kategori, catatan, akun..." oninput="onSearch(this)">
-            <button class="search-clear" id="searchClear" onclick="clearSearch()">✕</button>
-          </div>
-        </div>
-        <div class="txlist" id="txList"></div>
-      </div>
-    </div>
-    <div>
-      <div class="panel">
-        <div class="ph"><span class="pt">Overview</span></div>
-        <div class="pb" style="padding-top:14px">
-          <div class="dovwrap">
-            <canvas id="donut" width="120" height="120" style="flex-shrink:0"></canvas>
-            <div class="leg" id="legEl"></div>
-          </div>
-        </div>
-      </div>
-      <div class="panel">
-        <div class="ph">
-          <span class="pt">Budget Pengeluaran</span>
-          <button class="batur" onclick="openModal()">⚙️ Atur</button>
+          <button class="batur" onclick="openModal()">⚙ Atur</button>
         </div>
         <div class="pb" style="padding-top:14px" id="budgetBars"></div>
       </div>
-    </div>
+    </aside>
   </div>
-</div>
 
 <!-- PAGE PIUTANG -->
 <div class="page" id="page-piutang">
