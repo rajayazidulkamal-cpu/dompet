@@ -528,7 +528,7 @@ body:before{
     display:block;text-transform:none;font-size:20px;letter-spacing:-.4px;
     position:relative;padding-left:0;color:#f4f6ff;
   }
-  .logo:before{content:"Dashboard";font-size:22px;font-weight:800;color:#f4f6ff}
+  .logo:before{content:attr(data-title);font-size:22px;font-weight:800;color:#f4f6ff}
   .logo{font-size:0}.logo span{display:none}
   .logo:after{content:"";display:none}
   .hdr-right{display:flex;align-items:center;gap:12px}
@@ -674,7 +674,7 @@ body:before{
 <body>
 
 <div class="site-header">
-  <div class="logo">Dompet<span>ku</span></div>
+  <div class="logo" data-title="Dashboard">Dompet<span>ku</span></div>
   <div class="hdr-right">
     <button class="cloud-btn" id="cloudBtn" onclick="openCloudModal()"><span class="cdot"></span><span id="cloudBtnLabel">Offline</span></button>
     <div class="mbadge" id="mbadge"></div>
@@ -1164,6 +1164,9 @@ function fmtInput(id){
 
 // ── navigation ─────────────────────────────────────────────
 function setPage(pg){
+  var pageTitles={keuangan:'Dashboard',piutang:'Piutang',utang:'Utang',akun:'Akun & Saldo',laporan:'Laporan Keuangan',target:'Target Tabungan'};
+  var titleEl=document.querySelector('.logo');
+  if(titleEl)titleEl.setAttribute('data-title',pageTitles[pg]||'Dompetku');
   ['keuangan','piutang','utang','akun','laporan','target'].forEach(function(p){
     document.getElementById('page-'+p).classList.toggle('on',pg===p);
   });
