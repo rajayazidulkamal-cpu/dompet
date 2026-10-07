@@ -1503,6 +1503,97 @@ function render(){
   renderDonut();
   renderBudget();
   renderTx();
+  renderDashboardDetails();
+}
+
+function renderDashboardDetails(){
+  renderCashflowChart();
+  renderAccountSnapshot();
+  var d=getPeriodDates();
+  var range=document.getElementById('cashflowRange');
+  if(range){
+    if(!d.from) range.textContent='Semua waktu';
+    else range.textContent=periodMode==='bulan'?'Bulan Ini':periodMode==='7'?'7 Hari':periodMode==='3bln'?'3 Bulan':periodMode==='custom'?'Custom':'Semua';
+  }
+  var p=sum('masuk'),e=sum('keluar'),s=sum('saving');
+  var a=document.getElementById('cfIncome'),b=document.getElementById('cfExpense'),cc=document.getElementById('cfSaving');
+  if(a)a.textContent=fmt(p);if(b)b.textContent=fmt(e);if(cc)cc.textContent=fmt(s);
+}
+
+function renderAccountSnapshot(){
+  var el=document.getElementById('accountSnapshot');
+  if(!el)return;
+  if(!AKUN_LIST||!AKUN_LIST.length){
+    el.innerHTML='<div class="empty"><div class="empty-icon">💳</div>Belum ada akun</div>';return;
+  }
+  var total=0;
+  var rows=AKUN_LIST.map(function(a){
+    var saldo=Number(akunAwal[a.id]||0);
+    txs.forEach(function(t){
+      if(getAkunId(t.akun)===a.id) saldo+=t.type==='masuk'?Number(t.nom):-(Number(t.nom)||0);
+    });
+    total+=saldo;
+    return '<div class="account-row">'
+      +'<div class="account-ico">'+a.ico+'</div>'
+      +'<div><div class="account-name">'+a.name+'</div><div class="account-sub">Saldo tersedia</div></div>'
+      +'<div class="account-balance">'+fmt(saldo)+'</div>'
+      +'</div>';
+  }).join('');
+  el.innerHTML=rows+'<div class="account-total"><span>Total saldo</span><strong>'+fmt(total)+'</strong></div>';
+}
+
+function renderCashflowChart(){
+  var cv=document.getElementById('cashflowChart');
+  if(!cv)return;
+  var rect=cv.getBoundingClientRect(),w=Math.max(300,rect.width||600),h=Math.max(180,rect.height||235);
+  var dpr=window.devicePixelRatio||1;
+  cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr);
+  var ctx=cv.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
+  var list=filterByPeriod(txs).slice().sort(function(a,b){return new Date(a.tgl)-new Date(b.tgl);});
+  var now=new Date(),pd=getPeriodDates(),from=pd.from?new Date(pd.from):new Date((list[0]&&list[0].tgl)||now);
+  var to=pd.to?new Date(pd.to):now;
+  from.setHours(0,0,0,0);to.setHours(23,59,59,999);
+  if(to<=from)to=new Date(from.getTime()+86400000);
+  var n=8, bins=[];
+  for(var i=0;i<n;i++)bins.push({in:0,out:0,save:0,label:''});
+  list.forEach(function(t){
+    var dt=new Date(t.tgl);var ratio=(dt-from)/(to-from);var idx=Math.max(0,Math.min(n-1,Math.floor(ratio*n)));
+    if(t.type==='masuk')bins[idx].in+=Number(t.nom);else if(t.type==='keluar')bins[idx].out+=Number(t.nom);else bins[idx].save+=Number(t.nom);
+  });
+  for(var j=0;j<n;j++){
+    var dt=new Date(from.getTime()+((j+.5)/n)*(to-from));
+    bins[j].label=dt.toLocaleDateString('id-ID',{day:'2-digit',month:'short'}).replace('.','');
+  }
+  var max=1;
+  bins.forEach(function(x){max=Math.max(max,x.in,x.out,x.save);});
+  var pad={l:8,r:8,t:12,b:28},pw=w-pad.l-pad.r,ph=h-pad.t-pad.b;
+  ctx.font='9px Inter, sans-serif';ctx.textAlign='right';
+  for(var g=0;g<4;g++){
+    var y=pad.t+ph*g/3;
+    ctx.strokeStyle='rgba(117,143,194,.10)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(w-pad.r,y);ctx.stroke();
+    ctx.fillStyle='#586b8d';ctx.fillText(fmtShort(max*(1-g/3)),pad.l+35,y+3);
+  }
+  ctx.textAlign='center';ctx.fillStyle='#5e7193';
+  bins.forEach(function(x,i){ctx.fillText(x.label,pad.l+(i+.5)*pw/n,h-8);});
+  function path(key,color,fill){
+    var pts=bins.map(function(x,i){return{x:pad.l+(i+.5)*pw/n,y:pad.t+ph-(x[key]/max)*ph};});
+    if(fill){
+      ctx.beginPath();ctx.moveTo(pts[0].x,pad.t+ph);pts.forEach(function(p){ctx.lineTo(p.x,p.y);});
+      ctx.lineTo(pts[pts.length-1].x,pad.t+ph);ctx.closePath();ctx.fillStyle=fill;ctx.fill();
+    }
+    ctx.beginPath();pts.forEach(function(p,i){if(i===0)ctx.moveTo(p.x,p.y);else ctx.lineTo(p.x,p.y);});
+    ctx.strokeStyle=color;ctx.lineWidth=2;ctx.lineJoin='round';ctx.lineCap='round';ctx.stroke();
+    pts.forEach(function(p){ctx.beginPath();ctx.arc(p.x,p.y,2.6,0,Math.PI*2);ctx.fillStyle=color;ctx.fill();});
+  }
+  path('in','#5b8cff','rgba(91,140,255,.06)');
+  path('out','#ff7185','rgba(255,113,133,.035)');
+  path('save','#62d8bb',null);
+}
+function fmtShort(n){
+  n=Math.round(n||0);
+  if(n>=1000000)return 'Rp '+(n/1000000).toFixed(1).replace('.0','')+'jt';
+  if(n>=1000)return 'Rp '+Math.round(n/1000)+'rb';
+  return 'Rp '+n;
 }
 
 function fmt(n){
