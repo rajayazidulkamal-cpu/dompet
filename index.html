@@ -341,6 +341,208 @@ body{font-family:'Manrope',system-ui,sans-serif;background:var(--bg);color:var(-
 .cloud-status-box b{color:var(--text)}
 .cloud-hint{font-size:11px;color:var(--muted);line-height:1.6;margin-top:10px}
 .cloud-hint a{color:var(--blue)}
+
+/* ── PREMIUM MOTION SYSTEM ── */
+:root{
+  --motion-fast:.18s;
+  --motion-med:.35s;
+  --motion-slow:.65s;
+}
+
+/* Ambient moving light */
+body{
+  position:relative;
+  isolation:isolate;
+  background:
+    radial-gradient(circle at 12% 12%, rgba(201,168,76,.055), transparent 28%),
+    radial-gradient(circle at 88% 82%, rgba(91,156,246,.035), transparent 30%),
+    var(--bg);
+}
+body::before{
+  content:'';
+  position:fixed;
+  width:42vw;height:42vw;
+  min-width:280px;min-height:280px;
+  left:-18vw;top:18vh;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(201,168,76,.055),transparent 68%);
+  filter:blur(8px);
+  pointer-events:none;
+  z-index:-1;
+  animation:ambientDrift 12s ease-in-out infinite alternate;
+}
+body::after{
+  content:'';
+  position:fixed;
+  width:38vw;height:38vw;
+  min-width:240px;min-height:240px;
+  right:-16vw;bottom:8vh;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(91,156,246,.035),transparent 68%);
+  filter:blur(10px);
+  pointer-events:none;
+  z-index:-1;
+  animation:ambientDrift2 15s ease-in-out infinite alternate;
+}
+@keyframes ambientDrift{
+  0%{transform:translate3d(0,0,0) scale(1)}
+  100%{transform:translate3d(7vw,4vh,0) scale(1.12)}
+}
+@keyframes ambientDrift2{
+  0%{transform:translate3d(0,0,0) scale(1)}
+  100%{transform:translate3d(-6vw,-5vh,0) scale(1.1)}
+}
+
+/* Page transition */
+.page.on{
+  animation:pageEnter .42s cubic-bezier(.22,1,.36,1) both;
+}
+@keyframes pageEnter{
+  from{opacity:0;transform:translateY(10px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+/* Dashboard/card entrance */
+.page.on .kpi{
+  animation:kpiEnter .55s cubic-bezier(.22,1,.36,1) both;
+}
+.page.on .kpi:nth-child(1){animation-delay:.03s}
+.page.on .kpi:nth-child(2){animation-delay:.08s}
+.page.on .kpi:nth-child(3){animation-delay:.13s}
+.page.on .kpi:nth-child(4){animation-delay:.18s}
+@keyframes kpiEnter{
+  from{opacity:0;transform:translateY(14px) scale(.985)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+.kpi{
+  transition:transform var(--motion-med) cubic-bezier(.22,1,.36,1),box-shadow var(--motion-med),border-color var(--motion-med);
+}
+.kpi:hover{
+  transform:translateY(-5px) scale(1.008);
+  border-color:rgba(201,168,76,.24);
+}
+
+/* Panels rise in sequence */
+.page.on .panel{
+  animation:panelEnter .55s cubic-bezier(.22,1,.36,1) both;
+}
+.page.on .panel:nth-child(1){animation-delay:.06s}
+.page.on .panel:nth-child(2){animation-delay:.12s}
+.page.on .panel:nth-child(3){animation-delay:.18s}
+@keyframes panelEnter{
+  from{opacity:0;transform:translateY(12px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+/* Section headers */
+.ph{
+  position:relative;
+  overflow:hidden;
+}
+.ph::after{
+  content:'';
+  position:absolute;
+  top:0;bottom:0;
+  left:-35%;
+  width:25%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.035),transparent);
+  transform:skewX(-18deg);
+  animation:headerShimmer 5s ease-in-out infinite;
+}
+@keyframes headerShimmer{
+  0%,55%{left:-35%}
+  100%{left:125%}
+}
+
+/* Buttons feel alive */
+.bsub,.tb,.fc,.pbt,.batur,.lap-nav-btn,.btn-lunas,.btn-pdel,.btn-tgt-add,.btn-tgt-del{
+  transition:transform var(--motion-fast),filter var(--motion-fast),box-shadow var(--motion-fast),background var(--motion-fast),border-color var(--motion-fast);
+}
+.bsub:hover{transform:translateY(-2px)}
+.bsub:active,.tb:active,.fc:active,.pbt:active,.btn-lunas:active,.btn-tgt-add:active{
+  transform:scale(.97);
+}
+
+/* Form focus animation */
+.fr input,.fr select,.edit-fr input,.edit-fr select{
+  transition:border-color var(--motion-fast),box-shadow var(--motion-fast),transform var(--motion-fast);
+}
+.fr input:focus,.fr select:focus,.edit-fr input:focus,.edit-fr select:focus{
+  transform:translateY(-1px);
+}
+
+/* Transaction hover */
+.txi{
+  transition:background var(--motion-fast),transform var(--motion-fast),padding-left var(--motion-fast);
+}
+.txi:hover{
+  background:linear-gradient(90deg,rgba(201,168,76,.035),transparent);
+  padding-left:24px;
+}
+.txi:hover .ico{
+  transform:scale(1.08);
+}
+.ico{
+  transition:transform var(--motion-fast);
+}
+
+/* Account hover */
+.akun-item{
+  transition:background var(--motion-fast),padding-left var(--motion-fast);
+}
+.akun-item:hover{
+  background:rgba(201,168,76,.025);
+  padding-left:24px;
+}
+.akun-ico{
+  transition:transform var(--motion-fast);
+}
+.akun-item:hover .akun-ico{
+  transform:rotate(-4deg) scale(1.06);
+}
+
+/* Navigation micro interaction */
+.bn{
+  transition:color var(--motion-fast),transform var(--motion-fast);
+}
+.bn:hover{transform:translateY(-2px)}
+.bn.on .bn-ico{
+  animation:navPop .32s cubic-bezier(.22,1,.36,1);
+}
+@keyframes navPop{
+  0%{transform:scale(.8)}
+  60%{transform:scale(1.15)}
+  100%{transform:scale(1)}
+}
+
+/* Toast entrance */
+.toast.show{
+  animation:toastIn .35s cubic-bezier(.22,1,.36,1);
+}
+@keyframes toastIn{
+  from{opacity:0;transform:translateX(-50%) translateY(18px) scale(.96)}
+  to{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}
+}
+
+/* Modal entrance */
+.mo.open .mbox{
+  animation:modalIn .3s cubic-bezier(.22,1,.36,1);
+}
+@keyframes modalIn{
+  from{opacity:0;transform:translateY(12px) scale(.97)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+
+/* Respect reduced-motion accessibility */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:.01ms !important;
+    animation-iteration-count:1 !important;
+    scroll-behavior:auto !important;
+    transition-duration:.01ms !important;
+  }
+}
+
 </style>
 <style id="dompetku-premium-redesign">
 /* =========================================================
